@@ -15,16 +15,12 @@ expiration_interval = 300
 # Source file to upload
 file_path = "data/tuned_input_features.tsv"
 
-def upload_row(dynamo_table, client_attributes, profile_env="test"):
+def upload_row(dynamo_table, client_attributes, session):
     '''
     Upload a single row to dynamo_table.  Row is specified as 
     the client_attributes dictionary.
     '''
     
-    session = boto3.Session(profile_name=profile_env)
-    dynamodb = session.resource('dynamodb', region_name='us-east-1')
-    
-    table = dynamodb.Table(dynamo_table)
     # Create a table row by first copying client_attributes, then
     # adding a timestamp and an expiration.
     row_data = dict(client_attributes)
@@ -43,6 +39,9 @@ with open(file_path, "r") as f:
     # operation.  Features may have names like, "claims1", "claims2" etc.
     header = f.readline()
     keys = header.lower().strip().split('\t')
+    session = boto3.Session(profile_name="test")
+    dynamodb = session.resource('dynamodb', region_name='us-east-1')
+    table = dynamodb.Table(dynamo_table)
 
     for row in f:
         client_attributes = {}
@@ -56,4 +55,4 @@ with open(file_path, "r") as f:
         # to upload to the table.
         for k,v in zip(keys, values):
             client_attributes [k] = v
-        upload_row(table_name, client_attributes)
+        upload_row(table_name, client_attributes, table)
