@@ -41,7 +41,7 @@ with open(file_path, "r") as f:
     keys = header.lower().strip().split('\t')
     session = boto3.Session(profile_name="test")
     dynamodb = session.resource('dynamodb', region_name='us-east-1')
-    table = dynamodb.Table(dynamo_table)
+    table = dynamodb.Table(table_name)
 
     for row in f:
         client_attributes = {}
